@@ -5,7 +5,7 @@
 
   <groupId>org.multibit.hd.hardware</groupId>
   <artifactId>parent</artifactId>
-  <version>0.8.0</version>
+  <version>develop-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -23,7 +23,7 @@
 
   </properties>
 
-  <url>http://github.com/keepkey/multibit-hardware</url>
+  <url>http://github.com/kliyer/multibit-hardware</url>
   <inceptionYear>2013</inceptionYear>
 
   <organization>
@@ -61,7 +61,7 @@
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/keepkey/multibit-hardware/issues</url>
+    <url>https://github.com/kliyer/multibit-hardware/issues</url>
   </issueManagement>
 
   <repositories>
@@ -69,12 +69,12 @@
     <!-- Use https://raw.github.com to provide a consistent result -->
     <repository>
       <id>mbhd-maven-release</id>
-      <url>https://raw.github.com/keepkey/mbhd-maven/master/releases</url>
+      <url>https://raw.github.com/kliyer/mbhd-maven/master/releases</url>
       <releases/>
     </repository>
     <repository>
       <id>mbhd-maven-snapshot</id>
-      <url>https://raw.github.com/keepkey/mbhd-maven/master/snapshots</url>
+      <url>https://raw.github.com/kliyer/mbhd-maven/master/snapshots</url>
       <!-- These artifacts change frequently during development iterations -->
       <snapshots>
         <updatePolicy>always</updatePolicy>
@@ -98,9 +98,9 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:git:git@github.com:keepkey/multibit-hardware.git</connection>
-    <developerConnection>scm:git:git@github.com:keepkey/multibit-hardware.git</developerConnection>
-    <url>git@github.com:keepkey/multibit-hardware.git</url>
+    <connection>scm:git:git@github.com:kliyer/multibit-hardware.git</connection>
+    <developerConnection>scm:git:git@github.com:kliyer/multibit-hardware.git</developerConnection>
+    <url>git@github.com:kliyer/multibit-hardware.git</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -216,7 +216,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.4.1</version>
+        <version>2.5.2</version>
         <configuration>
           <autoVersionSubmodules>true</autoVersionSubmodules>
         </configuration>
