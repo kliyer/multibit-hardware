@@ -125,9 +125,13 @@ public enum MessageEventType {
    */
   GET_PUBLIC_KEY,
   /**
-   * Device response. Provide the master public key.
+   * Device response. Provide the master public key for BIP44.
    */
   PUBLIC_KEY,
+  /**
+   * Device response. Provide the master public key for identity.
+   */
+  PUBLIC_KEY_FOR_IDENTITY,
 
   // Transaction signing
   /**
@@ -258,7 +262,18 @@ public enum MessageEventType {
    * Client response. Client provides seed phrase word from user.
    */
   WORD_ACK,
-
+  /**
+   * Client request. Client provides identity information requiring device signature.
+   */
+  SIGN_IDENTITY,
+  /**
+   * Device response. The signed identity information.
+   */
+  SIGNED_IDENTITY,
+  /**
+   * Client request. Device should respond with Feature without reset.
+   */
+  GET_FEATURES,
   // Debugging messages
   DEBUG_LINK_DECISION,
   DEBUG_LINK_GET_STATE,

@@ -177,6 +177,17 @@ public class HardwareWalletStates {
   }
 
   /**
+   * @return A new confirm get public key for identity state
+   */
+  public static ConfirmGetPublicKeyForIdentityState newConfirmGetPublicKeyForIdentityState() {
+
+    log.debug("Transitioning to 'confirm GetPublicKey for identity' state");
+
+    return new ConfirmGetPublicKeyForIdentityState();
+
+  }
+
+  /**
    * @return A new confirm get deterministic hierarchy state
    */
   public static ConfirmGetDeterministicHierarchyState newConfirmGetDeterministicHierarchyState() {
@@ -231,4 +242,9 @@ public class HardwareWalletStates {
 
   }
 
+  public static ConfirmSignIdentityState newConfirmSignIdentityState() {
+    log.debug("Transitioning to 'confirm sign identity' state");
+
+    return new ConfirmSignIdentityState();
+  }
 }

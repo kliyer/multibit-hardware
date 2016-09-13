@@ -12,13 +12,16 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.TxRequest;
+import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.multibit.hd.hardware.core.utils.TransactionUtils;
 import org.multibit.hd.hardware.keepkey.utils.KeepKeyMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -463,6 +466,19 @@ public abstract class AbstractKeepKeyHardwareWalletClient implements HardwareWal
   }
 
   @Override
+  public Optional<MessageEvent> getPublicKeyForIdentity(URI identityUri, int index, String ecdsaCurveName, boolean showDisplay) {
+
+    return sendMessage(
+      KeepKeyMessage.GetPublicKey
+        .newBuilder()
+        // Build the chain code
+        .addAllAddressN(IdentityUtils.buildAddressN(identityUri, index))
+        .setEcdsaCurveName(ecdsaCurveName)
+        .build()
+    );
+  }
+
+  @Override
   public Optional<MessageEvent> getDeterministicHierarchy(List<ChildNumber> childNumbers) {
 
     List<Integer> addressN = Lists.newArrayList();
@@ -608,6 +624,32 @@ public abstract class AbstractKeepKeyHardwareWalletClient implements HardwareWal
         .build()
     );
   }
+
+  @Override
+  public Optional<MessageEvent> signIdentity(Identity identity) {
+
+    // Build the identity type
+    KeepKeyType.IdentityType identityType = KeepKeyType.IdentityType
+      .newBuilder()
+      .setHost(identity.getHost())
+      .setPath(identity.getPath())
+      .setPort(identity.getPort())
+      .setProto(identity.getProto())
+      .setUser(identity.getUser())
+      .setIndex(identity.getIndex())
+      .build();
+
+    return sendMessage(
+      KeepKeyMessage.SignIdentity
+        .newBuilder()
+        .setChallengeHidden(ByteString.copyFrom(identity.getChallengeHidden()))
+        .setChallengeVisual(identity.getChallengeVisual())
+        .setEcdsaCurveName(identity.getEcdsaCurveName())
+        .setIdentity(identityType)
+        .build()
+    );
+  }
+
 
   /**
    * <p>Send a message to the device that should have a near-immediate (under 5 second) response.</p>

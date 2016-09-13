@@ -83,7 +83,7 @@ public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
 At present we support
 
-* [Trezor](https://buytrezor.com/?a=multibit.org)
+* TREZOR
 * [KeepKey](https://keepkey.com)
 
 #### What use cases do you support ?
@@ -292,6 +292,12 @@ $ sudo update-rc.d trezor defaults
 ### Troubleshooting
 
 The following are known issues and their solutions or workarounds.
+
+#### I'm seeing `Device not connected` in the logs
+
+Check that you don't have an open browser window to myTrezor.com or perhaps another application (such as MultiBit HD) that is holding a connection
+to the device open. 
+
 
 #### My production Trezor/KeepKey doesn't work on Ubuntu
 

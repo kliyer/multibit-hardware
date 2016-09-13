@@ -6,11 +6,13 @@ import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
+import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.messages.TxRequest;
 import org.multibit.hd.hardware.core.wallets.Connectable;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -518,6 +520,30 @@ public interface HardwareWalletClient extends Connectable {
   Optional<MessageEvent> estimateTxSize(Transaction tx);
 
   /**
+   * <p>Send the SIGN_IDENTITY message to the device to sign the identity information.</p>
+   * <p>Expected response events are:</p>
+   * <ul>
+   * <li>SIGNED_IDENTITY if the operation succeeded</li>
+   * <li>FAILURE if the operation was unsuccessful</li>
+   * </ul>
+   *
+   * @param identity The identity information to sign and how to present it to the user
+   *
+   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
+   */
+  Optional<MessageEvent> signIdentity(Identity identity);
+
+  /**
+   * @param identityUri    The identity URI (e.g. "https://user@multibit.org/trezor-connect")
+   * @param index          The index of the identity to use (default is zero) to allow for multiple identities on same path
+   * @param ecdsaCurveName The ECDSA curve name to use for TLS (e.g. "nist256p1") leave null to use default
+   * @param showDisplay    True if the result should only be given on the device display
+   *
+   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
+   */
+  Optional<MessageEvent> getPublicKeyForIdentity(URI identityUri, int index, String ecdsaCurveName, boolean showDisplay);
+
+  /**
    * <p>Verify the contents of the Features message in accordance with client-specific rules (e.g. firmware)</p>
    *
    * @param features The Features from the device
@@ -532,5 +558,4 @@ public interface HardwareWalletClient extends Connectable {
    * @return The client name in an enum format (e.g. "TREZOR", "KEEP_KEY" etc)
    */
   String name();
-
 }

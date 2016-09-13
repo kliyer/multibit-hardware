@@ -239,6 +239,7 @@ public final class TrezorMessageUtils {
         case MessageType_PassphraseRequest:
           message = TrezorMessage.PassphraseRequest.parseFrom(buffer);
           messageEventType = MessageEventType.PASSPHRASE_REQUEST;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptPassphraseRequest((TrezorMessage.PassphraseRequest) message);
           break;
         case MessageType_PassphraseAck:
           message = TrezorMessage.PassphraseAck.parseFrom(buffer);
@@ -263,6 +264,19 @@ public final class TrezorMessageUtils {
         case MessageType_WordAck:
           message = TrezorMessage.WordAck.parseFrom(buffer);
           messageEventType = MessageEventType.WORD_ACK;
+          break;
+        case MessageType_SignIdentity:
+          message = TrezorMessage.SignIdentity.parseFrom(buffer);
+          messageEventType = MessageEventType.SIGN_IDENTITY;
+          break;
+        case MessageType_SignedIdentity:
+          message = TrezorMessage.SignedIdentity.parseFrom(buffer);
+          messageEventType = MessageEventType.SIGNED_IDENTITY;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptSignedIdentity((TrezorMessage.SignedIdentity) message);
+          break;
+        case MessageType_GetFeatures:
+          message = TrezorMessage.GetFeatures.parseFrom(buffer);
+          messageEventType = MessageEventType.GET_FEATURES;
           break;
         case MessageType_DebugLinkDecision:
           message = TrezorMessage.DebugLinkDecision.parseFrom(buffer);
@@ -721,9 +735,7 @@ public final class TrezorMessageUtils {
     List<Integer> addressN = Lists.newArrayList();
 
     for (ChildNumber childNumber : receivingAddressPath) {
-
       addressN.add(childNumber.getI());
-
     }
 
     return addressN;

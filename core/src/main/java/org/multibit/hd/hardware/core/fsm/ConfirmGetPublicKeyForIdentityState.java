@@ -10,13 +10,14 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
  * <ul>
  * <li>State transitions based on low level message events</li>
  * </ul>
- * <p>The "confirm PIN" state occurs in response to a CONFIRM_PIN message and handles button
- * requests, success and failure messages coming from the device.</p>
+ * <p>The "confirm get public key for identity" state occurs in response to a GET_PUBLIC_KEY
+ * message and handles the ongoing button requests, success and failure messages
+ * coming from the device as it provides the public key generated from the seed phrase.</p>
  *
- * @since 0.0.1
+ * @since 0.8.0
  *  
  */
-public class ConfirmPINState extends AbstractHardwareWalletState {
+public class ConfirmGetPublicKeyForIdentityState extends AbstractHardwareWalletState {
 
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
@@ -32,10 +33,11 @@ public class ConfirmPINState extends AbstractHardwareWalletState {
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY, client.name());
         // Further state transitions will occur after the user has provided the passphrase via the service
         break;
-      case ENTROPY_REQUEST:
-        // Device is asking for additional entropy from the user
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.PROVIDE_ENTROPY, client.name());
-        // Further state transitions will occur after the user has provided the entropy via the service
+      case PUBLIC_KEY:
+        // Fall through since they are the same data structure
+      case PUBLIC_KEY_FOR_IDENTITY:
+        // Device has completed the operation and provided a public key for an identity
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.PUBLIC_KEY_FOR_IDENTITY, event.getMessage().get(), client.name());
         break;
       case FAILURE:
         // User has cancelled or operation failed

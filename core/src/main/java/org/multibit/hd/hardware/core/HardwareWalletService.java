@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.core;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.bitcoinj.core.Address;
@@ -8,6 +9,7 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.commons.concurrent.SafeExecutors;
+import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.core.fsm.CreateWalletSpecification;
@@ -16,6 +18,7 @@ import org.multibit.hd.hardware.core.fsm.LoadWalletSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
@@ -299,6 +302,9 @@ public class HardwareWalletService {
       case REQUEST_PUBLIC_KEY:
         context.continueGetPublicKeyUseCase_PIN(pin);
         break;
+      case REQUEST_PUBLIC_KEY_FOR_IDENTITY:
+        context.continueGetPublicKeyForIdentityUseCase_PIN(pin);
+        break;
       case REQUEST_DETERMINISTIC_HIERARCHY:
         context.continueGetDeterministicHierarchyUseCase_PIN(pin);
         break;
@@ -311,15 +317,41 @@ public class HardwareWalletService {
       case CHANGE_PIN:
         context.continueChangePIN_PIN(pin);
         break;
+      case SIGN_IDENTITY:
+        context.continueSignIdentity_PIN(pin);
+        break;
       default:
         log.warn("Unknown PIN request use case: {}", context.getCurrentUseCase().name());
     }
   }
 
   /**
-   * <p>Provide additional entropy to the device to reduce risk of hardware compromise</p>
-   *
-   * @param entropy Random bytes provided by a secure random number generator (see {@link #generateEntropy()}
+    * <p>
+     * Provide the user entered passphrase</p>
+     *
+     * @param passphrase The passphrase taken from the user computer input
+     */
+    public void providePassphrase(String passphrase) {
+
+        // Use the FSM context to decide the appropriate continuation point
+        switch (context.getCurrentUseCase()) {
+            case DETACHED:
+                break;
+            case REQUEST_PUBLIC_KEY_FOR_IDENTITY:
+                context.continueGetPublicKeyForIdentityUseCase_Passphrase(passphrase);
+                break;                        
+            case SIGN_IDENTITY:
+                context.continueSignIdentity_Passphrase(passphrase);
+                break;
+            default:
+                log.warn("Unknown passphrase request use case: {}", context.getCurrentUseCase().name());
+        }
+    }
+
+    /**
+     * <p>
+     * Provide additional entropy to the device to reduce risk of hardware compromise</p>
+     * @param entropy Random bytes provided by a secure random number generator (see {@link #generateEntropy()}
    */
   public void provideEntropy(byte[] entropy) {
 
@@ -378,6 +410,36 @@ public class HardwareWalletService {
 
     // Set the FSM context
     context.beginGetPublicKeyUseCase(account, keyPurpose, index);
+
+  }
+
+  /**
+   * <p>Request a public key from the device for use with authentication. The device will respond by providing the public key calculated
+   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0032">BIP-32</a> deterministic wallet approach from
+   * the master node.</p>
+   *
+   * <p>A BIP-32 chain code is derived from a combination of the URI and the index as follows:</p>
+   * <ol>
+   * <li>Concatenate the little endian representation of index with the URI (index + URI)</li>
+   * <li>Compute the SHA256 hash of the result (256 bits)</li>
+   * <li>Take first 128 bits of the hash and split it into four 32-bit numbers A, B, C, D</li>
+   * <li>Set highest bits of numbers A, B, C, D to 1</li>
+   * <li>Derive the hardened HD node m/13'/A'/B'/C'/D' according to BIP32 (e.g. bitwise-OR with 0x80000000)</li>
+   * </ol>
+   *
+   * @param identityUri    The identity URI (e.g. "https://user@multibit.org/trezor-connect")
+   * @param index          The index of the identity to use (default is zero) to allow for multiple identities on same path
+   * @param ecdsaCurveName The ECDSA curve name to use for TLS (e.g. "nist256p1") leave null to use default
+   * @param showDisplay    True if the result should only be given on the device display
+   */
+  public void requestPublicKeyForIdentity(URI identityUri, int index, String ecdsaCurveName, boolean showDisplay) {
+
+    if (Strings.isNullOrEmpty(ecdsaCurveName)) {
+      ecdsaCurveName = "nist256p1";
+    }
+
+    // Set the FSM context
+    context.beginGetPublicKeyForIdentityUseCase(identityUri, index, ecdsaCurveName, showDisplay);
 
   }
 
@@ -536,4 +598,24 @@ public class HardwareWalletService {
 
     return bytes;
   }
+
+  /**
+   * <p>Request some identity data to be signed using an address key from the device. The device will respond by providing
+   * the signed data based on the key derived using the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic
+   * wallet approach from the master node.</p>
+   *
+   * <p>Notes:</p>
+   * <ol>
+   * <li>Provide a hidden challenge as random data used as a nonce</li>
+   * <li></li>
+   * </ol>
+   *
+   * @param identity The identity information to sign
+   */
+  public void signIdentity(Identity identity) {
+
+    // Set the FSM context
+    context.beginSignIdentityUseCase(identity);
+  }
+
 }
