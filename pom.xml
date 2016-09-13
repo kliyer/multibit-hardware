@@ -4,7 +4,7 @@
 
   <groupId>org.multibit.hd.hardware</groupId>
   <artifactId>parent</artifactId>
-  <version>0.8.4</version>
+  <version>0.8.5-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -101,7 +101,7 @@
     <connection>scm:git:git@github.com:kliyer/multibit-hardware.git</connection>
     <developerConnection>scm:git:git@github.com:kliyer/multibit-hardware.git</developerConnection>
     <url>git@github.com:kliyer/multibit-hardware.git</url>
-    <tag>0.8.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <modules>
